@@ -1,2 +1,13 @@
+# Ignore all
+*
+
+# Unignore all with extensions
+!*.*
+
+# Unignore all dirs
+!*/
+
+
 .zig-cache/
 zig-out/
+data/
