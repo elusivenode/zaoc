@@ -89,9 +89,9 @@ pub fn runSolution(year: u32, day: u32) !void {
                 const day02 = @import("solutions/2015/day02.zig");
                 const solution = day02.Solution.init(input);
                 const answer1 = solution.part1();
-                //const answer2 = solution.part2();
+                const answer2 = solution.part2();
                 std.debug.print("Part 1: {d}\n", .{answer1});
-                //std.debug.print("Part 2: {d}\n", .{answer2});
+                std.debug.print("Part 2: {d}\n", .{answer2});
             },
             else => {
                 std.debug.print("Solution not implemented yet!\n", .{});
