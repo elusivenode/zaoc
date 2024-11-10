@@ -66,7 +66,13 @@ pub fn runSolution(year: u32, day: u32) !void {
     std.debug.print("Path for input file is {s}\n", .{input_path});
     defer allocator.free(input_path);
 
-    const input = try std.fs.cwd().readFileAlloc(allocator, input_path, 1024 * 1024);
+    const input = std.fs.cwd().readFileAlloc(allocator, input_path, 1024 * 1024) catch |err| {
+        if (err == error.FileNotFound) {
+            std.debug.print("Solution not implemented yet!\n", .{});
+            return;
+        }
+        return err;
+    };
     defer allocator.free(input);
 
     switch (year) {
@@ -74,8 +80,18 @@ pub fn runSolution(year: u32, day: u32) !void {
             1 => {
                 const day01 = @import("solutions/2015/day01.zig");
                 const solution = day01.Solution.init(input);
-                const answer = solution.part1();
-                std.debug.print("Part 1: {d}\n", .{answer});
+                const answer1 = solution.part1();
+                const answer2 = solution.part2();
+                std.debug.print("Part 1: {d}\n", .{answer1});
+                std.debug.print("Part 2: {d}\n", .{answer2});
+            },
+            2 => {
+                const day02 = @import("solutions/2015/day02.zig");
+                const solution = day02.Solution.init(input);
+                const answer1 = solution.part1();
+                //const answer2 = solution.part2();
+                std.debug.print("Part 1: {d}\n", .{answer1});
+                //std.debug.print("Part 2: {d}\n", .{answer2});
             },
             else => {
                 std.debug.print("Solution not implemented yet!\n", .{});
