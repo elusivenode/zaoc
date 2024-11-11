@@ -101,6 +101,14 @@ pub fn runSolution(year: u32, day: u32) !void {
                 std.debug.print("Part 1: {d}\n", .{answer1});
                 std.debug.print("Part 2: {d}\n", .{answer2});
             },
+            4 => {
+                const day01 = @import("solutions/2015/day04.zig");
+                const solution = day01.Solution.init(input);
+                const answer1 = try solution.part1(0);
+                const answer2 = try solution.part2(answer1);
+                std.debug.print("Part 1: {d}\n", .{answer1});
+                std.debug.print("Part 2: {d}\n", .{answer2});
+            },
             else => {
                 std.debug.print("Solution not implemented yet!\n", .{});
             },
