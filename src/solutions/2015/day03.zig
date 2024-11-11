@@ -24,29 +24,58 @@ pub const Solution = struct {
         var visited = std.AutoHashMap(Position, u32).init(allocator);
         defer visited.deinit();
 
-        try self.deliverPresents(&visited);
+        const robo_helping = false;
+        try self.deliverPresents(&visited, robo_helping);
 
         const houses_visited = visited.count();
         return houses_visited;
     }
 
-    pub fn part2(self: *const Solution) i32 {
+    pub fn part2(self: *const Solution) !u32 {
         _ = self.input;
-        return -1;
+        var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+        defer _ = gpa.deinit();
+        const allocator = gpa.allocator();
+
+        var visited = std.AutoHashMap(Position, u32).init(allocator);
+        defer visited.deinit();
+
+        const robo_helping = true;
+        try self.deliverPresents(&visited, robo_helping);
+
+        const houses_visited = visited.count();
+        return houses_visited;
     }
 
-    fn deliverPresents(self: *const Solution, visited: *std.AutoHashMap(Position, u32)) !void {
+    fn deliverPresents(self: *const Solution, visited: *std.AutoHashMap(Position, u32), helper: bool) !void {
         var pos = Position{ .x = 0, .y = 0 };
+        var robo_pos = Position{ .x = 0, .y = 0 };
         const curr_pos = &pos;
+        const curr_robo_pos = &robo_pos;
         try visited.put(curr_pos.*, 1);
+        if (helper) {
+            try visited.put(curr_robo_pos.*, 1);
+        }
+        var ct: u32 = 1;
         for (self.input) |mv| {
-            self.move(curr_pos, mv);
-            const next_entry = try visited.getOrPut(curr_pos.*);
-            if (!next_entry.found_existing) {
-                next_entry.value_ptr.* = 1;
+            if (helper and (ct % 2 == 0)) {
+                self.move(curr_robo_pos, mv);
+                const next_entry = try visited.getOrPut(curr_robo_pos.*);
+                if (!next_entry.found_existing) {
+                    next_entry.value_ptr.* = 1;
+                } else {
+                    next_entry.value_ptr.* += 1;
+                }
             } else {
-                next_entry.value_ptr.* += 1;
+                self.move(curr_pos, mv);
+                const next_entry = try visited.getOrPut(curr_pos.*);
+                if (!next_entry.found_existing) {
+                    next_entry.value_ptr.* = 1;
+                } else {
+                    next_entry.value_ptr.* += 1;
+                }
             }
+            ct += 1;
         }
     }
 
@@ -78,4 +107,22 @@ test "Part 1 test 3" {
     const s = Solution.init("^v^v^v^v^v");
     const t = s.part1();
     try std.testing.expectEqual(t, 2);
+}
+
+test "Part 2 test 1" {
+    const s = Solution.init("^v");
+    const t = s.part2();
+    try std.testing.expectEqual(t, 3);
+}
+
+test "Part 2 test 2" {
+    const s = Solution.init("^>v<");
+    const t = s.part2();
+    try std.testing.expectEqual(t, 3);
+}
+
+test "Part 2 test 3" {
+    const s = Solution.init("^v^v^v^v^v");
+    const t = s.part2();
+    try std.testing.expectEqual(t, 11);
 }
