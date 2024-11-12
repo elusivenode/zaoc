@@ -20,27 +20,28 @@ pub const Solution = struct {
     }
 
     fn findIntegerSuffix(self: *const Solution, start_at: usize, n: u32) !usize {
-        var i: usize = start_at;
+        var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+        defer _ = gpa.deinit();
+        const allocator = gpa.allocator();
 
-        var buffer: [100]u8 = undefined;
-        const input_len = self.input.len;
-        @memcpy(buffer[0..input_len], self.input);
+        for (start_at..10_000_000) |i| {
+            const key = try std.fmt.allocPrint(allocator, "{s}{d}", .{ self.input, i });
+            defer allocator.free(key);
 
-        var md5 = std.crypto.hash.Md5.init(.{});
-        var result: [std.crypto.hash.Md5.digest_length]u8 = undefined;
+            var md5 = std.crypto.hash.Md5.init(.{});
+            md5.update(key);
 
-        while (true) : (i += 1) {
-            // First get the number format result
-            const num_len = std.fmt.formatIntBuf(buffer[input_len..], i, 10, .lower, .{});
-            const full_len = input_len + num_len;
-
-            md5 = std.crypto.hash.Md5.init(.{});
-            md5.update(buffer[0..full_len]);
+            var result: [std.crypto.hash.Md5.digest_length]u8 = undefined;
             md5.final(&result);
 
-            if (startsWithNZeroes(n, &result)) break;
+            if (startsWithNZeroes(n, &result)) {
+                return i;
+            }
+            if (i % 100000 == 0) {
+                std.debug.print("Processed {d} integers\n", .{i});
+            }
         }
-        return i;
+        return 999;
     }
 };
 
